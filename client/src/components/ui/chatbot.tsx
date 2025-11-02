@@ -29,7 +29,8 @@ export default function Chatbot() {
   const [isLoading, setIsLoading] = useState(false);
   const [position, setPosition] = useState({ x: window.innerWidth - 80, y: window.innerHeight - 80 });
   const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const dragStartPos = useRef({ x: 0, y: 0 });
+  const chatPos = useRef({ x: window.innerWidth - 80, y: window.innerHeight - 80 });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const chatRef = useRef<HTMLDivElement>(null);
@@ -49,34 +50,25 @@ export default function Chatbot() {
   }, [isOpen]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (chatRef.current) {
-      const rect = chatRef.current.getBoundingClientRect();
-      setDragOffset({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      });
-      setIsDragging(true);
-    }
+    dragStartPos.current = { x: e.clientX, y: e.clientY };
+    chatPos.current = position;
+    setIsDragging(true);
   };
 
   const handleMouseMove = (e: MouseEvent) => {
     if (isDragging) {
-      let newX = e.clientX - dragOffset.x;
-      let newY = e.clientY - dragOffset.y;
+      const dx = e.clientX - dragStartPos.current.x;
+      const dy = e.clientY - dragStartPos.current.y;
+      let newX = chatPos.current.x + dx;
+      let newY = chatPos.current.y + dy;
 
-      // Keep the chat within viewport bounds
-      const chatWidth = 400;
-      const chatHeight = 550;
-      const buttonSize = 56; // Size of the toggle button
+      const chatWidth = chatRef.current?.offsetWidth || 400;
+      const chatHeight = chatRef.current?.offsetHeight || 550;
 
-      // Constrain movement to keep both button and chat visible
       newX = Math.max(10, Math.min(newX, window.innerWidth - chatWidth - 10));
       newY = Math.max(10, Math.min(newY, window.innerHeight - chatHeight - 10));
 
-      setPosition({
-        x: newX,
-        y: newY,
-      });
+      setPosition({ x: newX, y: newY });
     }
   };
 
@@ -197,11 +189,12 @@ Please provide a helpful, accurate response. If the question involves serious sy
     <>
       {/* Draggable Floating Chatbot Toggle Button */}
       <div
-        className="fixed z-50 cursor-move"
+        className="fixed z-50"
         style={{
           left: `${position.x}px`,
           top: `${position.y}px`,
         }}
+        onMouseDown={handleMouseDown}
       >
         <Button
           onClick={() => setIsOpen(!isOpen)}
@@ -220,15 +213,14 @@ Please provide a helpful, accurate response. If the question involves serious sy
       {isOpen && (
         <div
           ref={chatRef}
-          className="fixed z-50 cursor-move select-none"
+          className="fixed z-50 select-none"
           style={{
-            left: `${Math.max(10, Math.min(position.x - 320, window.innerWidth - 410))}px`, // Keep chat window in bounds
-            top: `${Math.max(10, Math.min(position.y - 550, window.innerHeight - 560))}px`,
+            left: `${position.x}px`,
+            top: `${position.y}px`,
           }}
-          onMouseDown={handleMouseDown}
         >
           <Card className="w-96 h-[500px] shadow-2xl border-2 animate-fade-in">
-            <CardHeader className="pb-3 bg-gradient-to-r from-primary/5 to-secondary/5 cursor-move">
+            <CardHeader className="pb-3 bg-gradient-to-r from-primary/5 to-secondary/5 cursor-move" onMouseDown={handleMouseDown}>
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-lg truncate">
                   <Bot className="h-5 w-5 text-primary flex-shrink-0" />

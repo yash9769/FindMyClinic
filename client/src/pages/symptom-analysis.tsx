@@ -192,17 +192,7 @@ export default function SymptomAnalysis() {
   };
 
   return (
-    <div
-      className="min-h-screen"
-      style={{
-        backgroundImage: `url(${AI})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundAttachment: 'fixed',
-        filter: 'brightness(0.5)',
-      }}
-    >
+    <div className="min-h-screen relative">
       <div
         className="absolute inset-0"
         style={{
@@ -212,16 +202,16 @@ export default function SymptomAnalysis() {
           backgroundRepeat: 'no-repeat',
           backgroundAttachment: 'fixed',
           filter: 'brightness(0.5) blur(2px)',
-          zIndex: -1
+          zIndex: 0,
         }}
-      ></div>
-      <div className="container mx-auto px-4 py-8">
+      />
+      <div className="relative z-10 container mx-auto px-4 py-8">
         {/* Header */}
         <div className="max-w-4xl mx-auto mb-8">
           <Button
             variant="ghost"
             onClick={() => navigate("/")}
-            className="mb-4"
+            className="mb-4 bg-white/80 backdrop-blur-sm rounded-xl"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
@@ -248,7 +238,7 @@ export default function SymptomAnalysis() {
 
               {/* Disclaimer */}
               <div className="mt-6">
-                <Alert>
+                <Alert className="bg-white/60 backdrop-filter backdrop-blur-lg shadow-lg rounded-xl">
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>
                     This tool provides general recommendations based on your symptoms.
@@ -277,7 +267,7 @@ export default function SymptomAnalysis() {
           {currentStep === "results" && analysisData && doctor && clinic && (
             <div className="animate-fade-in space-y-6">
               {/* Success Message */}
-              <Alert className="border-green-200 bg-green-50">
+              <Alert className="border-green-200 bg-green-50/60 backdrop-filter backdrop-blur-lg shadow-lg rounded-xl">
                 <CheckCircle className="h-4 w-4 text-green-600" />
                 <AlertDescription className="text-green-800">
                   Analysis complete! Here are our recommendations based on your symptoms.
@@ -285,7 +275,7 @@ export default function SymptomAnalysis() {
               </Alert>
 
               {/* Symptom Summary */}
-              <div className="bg-white rounded-lg p-6 shadow-sm border">
+              <div className="bg-white/60 backdrop-filter backdrop-blur-lg shadow-lg rounded-xl p-6">
                 <h3 className="text-lg font-semibold mb-4">Your Symptoms</h3>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
@@ -306,7 +296,7 @@ export default function SymptomAnalysis() {
               </div>
 
               {/* Gemini Analysis Results */}
-              <div className="bg-green-50 rounded-lg p-6">
+              <div className="bg-green-50/60 backdrop-filter backdrop-blur-lg shadow-lg rounded-xl p-6">
                 <h3 className="text-lg font-semibold text-green-900 mb-2">
                   AI Analysis Results
                 </h3>
@@ -355,7 +345,7 @@ export default function SymptomAnalysis() {
 
               {/* Additional Recommendations */}
               {analysisData.recommendations && (
-                <div className="bg-blue-50 rounded-lg p-6">
+                <div className="bg-blue-50/60 backdrop-filter backdrop-blur-lg shadow-lg rounded-xl p-6">
                   <h3 className="text-lg font-semibold text-blue-900 mb-2">
                     Additional Recommendations
                   </h3>

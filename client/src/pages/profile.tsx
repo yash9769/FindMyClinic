@@ -202,17 +202,7 @@ export default function Profile() {
   }
 
   return (
-    <div
-      className="min-h-screen"
-      style={{
-        backgroundImage: `url(${prof})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundAttachment: 'fixed',
-        filter: "brightness(0.5)",
-      }}
-    >
+    <div className="min-h-screen relative">
       <div
         className="absolute inset-0"
         style={{

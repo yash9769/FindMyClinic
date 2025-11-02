@@ -246,17 +246,7 @@ export default function Patients() {
   };
 
   return (
-    <div
-      className="min-h-screen"
-      style={{
-        backgroundImage: `url(${loco})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundAttachment: 'fixed',
-        filter: "brightness(0.5)",
-      }}
-    >
+    <div className="min-h-screen relative">
       <div
         className="absolute inset-0"
         style={{

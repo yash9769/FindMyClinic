@@ -34,7 +34,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<'patient' | null>(null);
-  const [hasRedirected, setHasRedirected] = useState(false);
 
   useEffect(() => {
     // Get initial session
@@ -72,16 +71,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         setUserRole(role);
         // Redirect based on role after login (only once per session)
-        if (_event === 'SIGNED_IN' && !hasRedirected) {
+        if (_event === 'SIGNED_IN' && !sessionStorage.getItem('hasRedirected')) {
           const currentPath = window.location.pathname;
           if (role === 'patient' && currentPath !== '/') {
-            setHasRedirected(true);
+            sessionStorage.setItem('hasRedirected', 'true');
             window.location.href = '/';
           }
         }
       } else {
         setUserRole(null);
-        setHasRedirected(false);
+        sessionStorage.removeItem('hasRedirected');
       }
       setLoading(false);
     });

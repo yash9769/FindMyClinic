@@ -291,17 +291,7 @@ export default function UserDashboard() {
   }
 
   return (
-    <div
-      className="min-h-screen"
-      style={{
-        backgroundImage: `url(${DB})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundAttachment: 'fixed',
-        filter: "brightness(0.5)",
-      }}
-    >
+    <div className="min-h-screen relative">
       <div
         className="absolute inset-0"
         style={{
@@ -311,31 +301,32 @@ export default function UserDashboard() {
           backgroundRepeat: 'no-repeat',
           backgroundAttachment: 'fixed',
           filter: "brightness(0.5) blur(2px)",
-          zIndex: -1
+          zIndex: 0
         }}
-      ></div>
-      {/* Header */}
-      <div className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Patient Dashboard</h1>
-              <p className="text-gray-600">Welcome back, {user?.user_metadata?.name || 'Patient'}</p>
+      />
+      <div className="relative z-10">
+        {/* Header */}
+        <div className="bg-white/80 backdrop-blur-sm shadow">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-6">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Patient Dashboard</h1>
+                <p className="text-gray-600">Welcome back, {user?.user_metadata?.name || 'Patient'}</p>
+              </div>
+              <Button variant="outline" onClick={() => setLocation('/profile')}>
+                <Settings className="h-4 w-4 mr-2" />
+                Edit Profile
+              </Button>
             </div>
-            <Button variant="outline" onClick={() => setLocation('/profile')}>
-              <Settings className="h-4 w-4 mr-2" />
-              Edit Profile
-            </Button>
           </div>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {/* Stats Cards */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Visits</CardTitle>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {/* Stats Cards */}
+            <Card className="bg-white/60 backdrop-filter backdrop-blur-lg shadow-lg rounded-xl">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Visits</CardTitle>
               <Calendar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -344,7 +335,7 @@ export default function UserDashboard() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-white/60 backdrop-filter backdrop-blur-lg shadow-lg rounded-xl">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Active Tokens</CardTitle>
               <Ticket className="h-4 w-4 text-muted-foreground" />
@@ -357,7 +348,7 @@ export default function UserDashboard() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-white/60 backdrop-filter backdrop-blur-lg shadow-lg rounded-xl">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Favorite Clinic</CardTitle>
               <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -373,7 +364,7 @@ export default function UserDashboard() {
 
         {/* Patient Features */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card>
+          <Card className="bg-white/60 backdrop-filter backdrop-blur-lg shadow-lg rounded-xl">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-primary" />
@@ -390,7 +381,7 @@ export default function UserDashboard() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-white/60 backdrop-filter backdrop-blur-lg shadow-lg rounded-xl">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Ticket className="h-5 w-5 text-primary" />
@@ -448,7 +439,7 @@ export default function UserDashboard() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-white/60 backdrop-filter backdrop-blur-lg shadow-lg rounded-xl">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <User className="h-5 w-5 text-primary" />
@@ -471,7 +462,7 @@ export default function UserDashboard() {
         {/* Profile Information Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           {/* Profile Details */}
-          <Card>
+          <Card className="bg-white/60 backdrop-filter backdrop-blur-lg shadow-lg rounded-xl">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <span className="flex items-center gap-2">
@@ -547,7 +538,7 @@ export default function UserDashboard() {
           </Card>
 
           {/* QR Code Display */}
-          <Card>
+          <Card className="bg-white/60 backdrop-filter backdrop-blur-lg shadow-lg rounded-xl">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <QrCode className="h-5 w-5 text-primary" />
@@ -584,7 +575,7 @@ export default function UserDashboard() {
 
 
         {/* Recent Visits */}
-        <Card className="mt-6">
+        <Card className="mt-6 bg-white/60 backdrop-filter backdrop-blur-lg shadow-lg rounded-xl">
           <CardHeader>
             <CardTitle>Recent Clinic Visits</CardTitle>
           </CardHeader>
