@@ -135,7 +135,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen relative">
-      <div className="absolute inset-0" style={{ backgroundImage: `url(${img1})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', backgroundAttachment: 'fixed', filter: 'blur(5px)' }}></div>
+      <div className="absolute inset-0" style={{ backgroundImage: `url(${img1})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', backgroundAttachment: 'fixed', filter: 'blur(5px) brightness(0.5)' }}></div>
       <div className="relative z-10">
 
       {/* ===== HERO SECTION ===== */}

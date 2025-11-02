@@ -210,6 +210,7 @@ export default function Profile() {
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
         backgroundAttachment: 'fixed',
+        filter: "brightness(0.5)",
       }}
     >
       <div

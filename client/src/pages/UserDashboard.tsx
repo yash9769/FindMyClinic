@@ -299,6 +299,7 @@ export default function UserDashboard() {
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
         backgroundAttachment: 'fixed',
+        filter: "brightness(0.5)",
       }}
     >
       <div
@@ -309,7 +310,7 @@ export default function UserDashboard() {
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
           backgroundAttachment: 'fixed',
-          filter: 'brightness(0) blur(2px)',
+          filter: "brightness(0.5) blur(2px)",
           zIndex: -1
         }}
       ></div>

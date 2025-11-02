@@ -200,6 +200,7 @@ export default function SymptomAnalysis() {
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
         backgroundAttachment: 'fixed',
+        filter: 'brightness(0.5)',
       }}
     >
       <div
@@ -210,7 +211,7 @@ export default function SymptomAnalysis() {
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
           backgroundAttachment: 'fixed',
-          filter: 'brightness(0) blur(2px)',
+          filter: 'brightness(0.5) blur(2px)',
           zIndex: -1
         }}
       ></div>
@@ -311,7 +312,7 @@ export default function SymptomAnalysis() {
                 </h3>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <p className="text-green-800"><strong>Analysis:</strong> {analysisData.analysisResult}</p>
+                    <p className="text-green-800"><strong>Analysis:</strong> {analysisData.analysis_result}</p>
                     <p className="text-green-800"><strong>Confidence:</strong> {analysisData.confidence}%</p>
                     <p className="text-green-800"><strong>Urgency:</strong> {analysisData.urgency}</p>
                     {analysisData.recommended_specialty && (
@@ -320,8 +321,8 @@ export default function SymptomAnalysis() {
                     {analysisData.recommendations && (
                       <p className="text-green-800"><strong>Recommendations:</strong> {analysisData.recommendations}</p>
                     )}
-                    {analysisData.possibleConditions && analysisData.possibleConditions.length > 0 && (
-                      <p className="text-green-800"><strong>Possible Conditions:</strong> {analysisData.possibleConditions.join(', ')}</p>
+                    {analysisData.possible_conditions && analysisData.possible_conditions.length > 0 && (
+                      <p className="text-green-800"><strong>Possible Conditions:</strong> {analysisData.possible_conditions.join(', ')}</p>
                     )}
                   </div>
 
@@ -331,25 +332,9 @@ export default function SymptomAnalysis() {
                       <h4 className="text-md font-semibold text-green-900 mb-2">
                         Raw Gemini API Response
                       </h4>
-                      <div className="space-y-2">
-                        {(() => {
-                          try {
-                            const parsed = JSON.parse(rawGeminiResponse);
-                            return (
-                              <>
-                                <p className="text-green-800"><strong>Analysis:</strong> {parsed.analysis}</p>
-                                  <p className="text-green-800"><strong>Confidence:</strong> {parsed.confidence}</p>
-                                  <p className="text-green-800"><strong>Urgency:</strong> {parsed.urgency}</p>
-                                  <p className="text-green-800"><strong>Recommended Specialty:</strong> {parsed.recommendedSpecialty}</p>
-                                  <p className="text-green-800"><strong>Recommendations:</strong> {parsed.recommendations}</p>
-                                  <p className="text-green-800"><strong>Possible Conditions:</strong> {Array.isArray(parsed.possibleConditions) ? parsed.possibleConditions.join(', ') : parsed.possibleConditions}</p>
-                              </>
-                            );
-                          } catch (e) {
-                            return <p className="text-green-800">Unable to parse response</p>;
-                          }
-                        })()}
-                      </div>
+                      <pre className="text-green-800 bg-gray-100 p-2 rounded-md overflow-x-auto text-xs">
+                        {rawGeminiResponse}
+                      </pre>
                     </div>
                   )}
                 </div>

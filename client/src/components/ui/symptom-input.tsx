@@ -26,7 +26,6 @@ export default function SymptomInput({ onSubmit, isLoading = false }: SymptomInp
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageCapture = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -138,7 +137,7 @@ export default function SymptomInput({ onSubmit, isLoading = false }: SymptomInp
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => cameraInputRef.current?.click()}
+                onClick={() => fileInputRef.current?.click()}
                 className="flex items-center gap-2"
               >
                 <Camera className="h-4 w-4" />
@@ -147,13 +146,6 @@ export default function SymptomInput({ onSubmit, isLoading = false }: SymptomInp
             </div>
             <input
               ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleImageCapture}
-              className="hidden"
-            />
-            <input
-              ref={cameraInputRef}
               type="file"
               accept="image/*"
               capture="environment"
