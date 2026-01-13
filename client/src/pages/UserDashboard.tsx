@@ -183,15 +183,15 @@ export default function UserDashboard() {
               { label: "Saved", val: "14h", icon: TrendingUp, color: "amber-500" }
             ].map((stat, i) => (
               <motion.div key={i} {...fadeInUp} transition={{ delay: i * 0.1 }}>
-                <Card className="glass-card border-none bg-white/95 backdrop-blur-2xl shadow-xl rounded-[2rem] hover:translate-y-[-8px] transition-all">
-                  <CardContent className="p-6 md:p-8 flex flex-col items-center md:items-start">
-                    <div className={`w-12 h-12 rounded-[1.2rem] flex items-center justify-center mb-4 bg-slate-100 text-${stat.color}`}>
+                <div className="premium-card bg-white/95 backdrop-blur-2xl">
+                  <div className="p-6 md:p-8 flex flex-col items-center md:items-start">
+                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4 bg-slate-50 text-indigo-600">
                       <stat.icon className="h-6 w-6" />
                     </div>
                     <div className="text-2xl md:text-4xl font-black text-slate-900 mb-1">{stat.val}</div>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</p>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </motion.div>
             ))}
           </div>
@@ -200,10 +200,10 @@ export default function UserDashboard() {
             <div className="lg:col-span-2 space-y-8 md:space-y-12">
               {/* Active Tokens */}
               <motion.div {...fadeInUp}>
-                <Card className="glass-card border-none bg-white/95 backdrop-blur-2xl shadow-2xl rounded-[2.5rem] overflow-hidden">
+                <Card className="glass-card bg-white/90">
                   <CardHeader className="p-8 md:p-12 pb-4">
                     <CardTitle className="text-2xl md:text-3xl font-black text-slate-900 flex items-center gap-4">
-                      <Ticket className="h-8 w-8 text-primary" /> Live Appointments
+                      <Ticket className="h-8 w-8 text-indigo-500" /> Live Status
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-8 md:p-12 space-y-6">
@@ -220,19 +220,21 @@ export default function UserDashboard() {
                           <div key={token.id} className="p-6 md:p-8 bg-white border border-slate-100 rounded-[2rem] shadow-sm hover:shadow-xl transition-all group">
                             <div className="flex flex-col md:flex-row justify-between items-center gap-8">
                               <div className="flex items-center gap-6">
-                                <div className="w-16 h-16 md:w-20 md:h-20 bg-slate-900 text-white rounded-[1.5rem] md:rounded-[2.5rem] flex flex-col items-center justify-center shadow-2xl group-hover:scale-105 transition-transform">
-                                  <span className="text-[9px] font-black opacity-40 uppercase">Token</span>
-                                  <span className="text-2xl md:text-3xl font-black">#{token.token_number}</span>
+                                <div className="w-16 h-16 md:w-20 md:h-20 bg-slate-900 text-white rounded-3xl flex flex-col items-center justify-center shadow-xl group-hover:bg-indigo-600 transition-colors duration-500">
+                                  <span className="text-[9px] font-black opacity-30 uppercase tracking-widest">Token</span>
+                                  <span className="text-2xl md:text-3xl font-black tracking-tighter">#{token.token_number}</span>
                                 </div>
                                 <div>
-                                  <h4 className="text-lg md:text-xl font-black text-slate-900 mb-1">{token.clinic.name}</h4>
-                                  <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter truncate max-w-[200px]">{token.clinic.address}</p>
+                                  <h4 className="text-lg md:text-xl font-black text-slate-900 mb-1 uppercase tracking-tight">{token.clinic.name}</h4>
+                                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                                    <MapPin className="h-3 w-3" /> {token.clinic.address}
+                                  </p>
                                 </div>
                               </div>
                               <div className="flex items-center gap-10">
                                 <div className="text-right">
-                                  <h4 className="text-3xl md:text-5xl font-black text-primary tracking-tighter">~{token.estimated_wait_time || 15}m</h4>
-                                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Expected Arrival</p>
+                                  <h4 className="text-3xl md:text-5xl font-black text-indigo-600 tracking-tighter">~{token.estimated_wait_time || 15}m</h4>
+                                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Incoming</p>
                                 </div>
                                 <Button variant="ghost" className="h-12 w-12 rounded-2xl text-rose-500 hover:bg-rose-50" onClick={() => handleCancel(token.id)}>
                                   <X className="h-6 w-6" />
@@ -261,8 +263,8 @@ export default function UserDashboard() {
                         <div className="p-8 bg-slate-50 rounded-[2rem] border border-slate-100">
                           <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-6">Patient Baseline</h4>
                           {[{ l: "Full Name", v: profile.fullName }, { l: "Blood", v: profile.bloodType }, { l: "Allergies", v: profile.allergies || "None" }].map(it => (
-                            <div key={it.l} className="flex justify-between items-center py-3 border-b border-slate-200/50">
-                              <span className="text-xs font-bold text-slate-500">{it.l}</span>
+                            <div key={it.l} className="flex justify-between items-center py-4 border-b border-slate-200/50 last:border-0">
+                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{it.l}</span>
                               <span className="text-xs font-black text-slate-900">{it.v || "—"}</span>
                             </div>
                           ))}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, MapPin, Clock, Users, Navigation, User, Star, IndianRupee, Activity, CheckCircle2, AlertCircle, Sparkles, X, ChevronRight, Phone, Heart } from "lucide-react";
+import { useLocation, Link } from "wouter";
+import { Search, MapPin, Clock, Users, Navigation, User, Star, IndianRupee, Activity, CheckCircle2, AlertCircle, Sparkles, X, ChevronRight, Phone, Heart, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,16 +18,24 @@ import locoBg from "@/images/loco.jpg";
 const getStatusColor = (status: string) => {
   switch (status) {
     case "open": return "bg-emerald-500/10 text-emerald-600 border-emerald-200";
-    case "busy": return "bg-amber-500/10 text-amber-600 border-amber-200";
-    case "closed": return "bg-rose-500/10 text-rose-600 border-rose-200";
+    case "busy": return "bg-amber-500/10 text-amber-600 border-amber-200 font-bold";
+    case "closed": return "bg-rose-500/10 text-rose-600 border-rose-200 grayscale";
     default: return "bg-slate-500/10 text-slate-600 border-slate-200";
   }
 };
 
+const getAreaFromAddress = (address: string) => {
+  const parts = address.split(',').map(p => p.trim());
+  if (parts.length >= 3) {
+    return `${parts[parts.length - 3]}, ${parts[parts.length - 2]}`;
+  }
+  return parts.slice(0, 2).join(', ');
+};
+
 interface ClinicWithDistance extends Clinic {
   distance?: number;
-  currentWaitTime?: number;
-  queueSize?: number;
+  currentWaitTime: number | null;
+  queueSize: number | null;
 }
 
 interface Doctor {
@@ -61,7 +70,22 @@ export default function Patients() {
     position: number;
     clinicName: string;
     estimatedWaitTime: number;
+    clinicId: string;
   } | null>(null);
+
+  // Load active tracker from localStorage on mount
+  useEffect(() => {
+    const tokens = JSON.parse(localStorage.getItem('userTokens') || '[]');
+    if (tokens.length > 0) {
+      const latest = tokens[tokens.length - 1]; // Simply track latest for demo
+      setUserQueueStatus({
+        position: Math.floor(Math.random() * 5) + 1, // Simulated current position
+        clinicName: "Active Session",
+        estimatedWaitTime: 15,
+        clinicId: latest.clinicId
+      });
+    }
+  }, []);
 
   useEffect(() => {
     requestLocation();
@@ -171,7 +195,8 @@ export default function Patients() {
       setUserQueueStatus({
         position: (clinic.queueSize || 0) + 1,
         clinicName: doctor ? `${clinic.name} - Dr. ${doctor.name}` : clinic.name,
-        estimatedWaitTime: token.estimated_wait_time
+        estimatedWaitTime: token.estimated_wait_time,
+        clinicId: clinic.id
       });
 
       toast({
@@ -197,8 +222,8 @@ export default function Patients() {
     <div className="min-h-screen relative overflow-hidden pb-24">
       {/* Reverted Background with Image */}
       <div className="fixed inset-0 z-0">
-        <img src={locoBg} className="w-full h-full object-cover filter brightness-50" />
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/40 via-transparent to-slate-900/60 backdrop-blur-[1px]"></div>
+        <img src={locoBg} className="w-full h-full object-cover filter brightness-[0.25] contrast-[1.1]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/20 to-slate-900/80 backdrop-blur-[2px]"></div>
       </div>
 
       <div className="noise opacity-[0.03]"></div>
@@ -210,8 +235,8 @@ export default function Patients() {
             <h1 className="text-5xl md:text-8xl font-black text-white mb-4 tracking-tighter drop-shadow-2xl">
               Clinics <span className="text-primary italic">Nearby</span>
             </h1>
-            <Badge className="bg-white/10 backdrop-blur-md text-white border-white/20 px-6 py-2 rounded-full font-black text-xs uppercase tracking-[0.2em] mb-4">
-              Real-Time Inventory Access
+            <Badge className="bg-indigo-600 text-white border-none px-6 py-2 rounded-full font-black text-xs uppercase tracking-[0.2em] mb-4 shadow-xl shadow-indigo-500/20">
+              Live clinic status
             </Badge>
           </motion.div>
 
@@ -224,18 +249,26 @@ export default function Patients() {
                 exit={{ opacity: 0, scale: 0.9, y: 50 }}
                 className="fixed bottom-6 left-4 right-4 z-[100] md:relative md:bottom-auto md:mb-12"
               >
-                <Card className="glass-card border-none bg-primary text-white p-6 overflow-hidden relative shadow-[0_30px_60px_-15px_rgba(37,99,235,0.4)]">
-                  <div className="flex items-center gap-6">
-                    <div className="w-16 h-16 bg-white text-primary rounded-2xl flex flex-col items-center justify-center shadow-xl flex-shrink-0">
-                      <span className="text-[10px] font-black opacity-60 uppercase">Pos</span>
-                      <span className="text-2xl font-black">#{userQueueStatus.position}</span>
+                <Card className="glass-card border-none bg-indigo-600 text-white p-4 overflow-hidden relative shadow-[0_30px_60px_-15px_rgba(79,70,229,0.4)] md:max-w-md md:mx-auto">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-white/20 backdrop-blur-md text-white rounded-xl flex flex-col items-center justify-center shadow-lg flex-shrink-0 border border-white/20">
+                      <span className="text-[8px] font-black opacity-60 uppercase">Pos</span>
+                      <span className="text-lg font-black">#{userQueueStatus.position}</span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-xl font-black truncate">Live Track</h3>
-                      <p className="font-bold text-white/80 text-sm truncate">{userQueueStatus.clinicName}</p>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-emerald-400 rounded-full animate-ping"></div>
+                        <h3 className="text-sm font-black uppercase tracking-wider">Tracking Active</h3>
+                      </div>
+                      <p className="font-bold text-white/80 text-xs truncate">{userQueueStatus.clinicName}</p>
                     </div>
-                    <Button variant="ghost" size="icon" className="h-10 w-10 text-white hover:bg-white/10" onClick={() => setUserQueueStatus(null)}>
-                      <X className="h-6 w-6" />
+                    <Link href="/queue-status">
+                      <Button variant="outline" className="h-10 bg-white/10 border-white/20 hover:bg-white/20 text-white font-black text-xs rounded-xl">
+                        View Live Queue
+                      </Button>
+                    </Link>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-white/50 hover:text-white" onClick={() => setUserQueueStatus(null)}>
+                      <X className="h-4 w-4" />
                     </Button>
                   </div>
                 </Card>
@@ -247,29 +280,49 @@ export default function Patients() {
           <div className="max-w-3xl mx-auto mb-16 px-2">
             <div className="relative group">
               <div className="absolute inset-0 bg-primary/20 rounded-[2rem] blur-3xl group-focus-within:bg-primary/40 transition-all"></div>
-              <div className="relative flex items-center bg-white/90 backdrop-blur-xl rounded-[1.5rem] md:rounded-[2.5rem] shadow-2xl p-1.5 md:p-2 border border-white/50">
+              <div className="relative flex items-center bg-white/95 backdrop-blur-2xl rounded-[1.5rem] md:rounded-[2.5rem] shadow-2xl p-1.5 md:p-2 border border-white/50">
                 <Search className="ml-6 text-slate-400 h-6 w-6" />
                 <Input
                   type="text"
-                  placeholder="Find by clinic, area, or doctor..."
+                  placeholder="Search clinic, doctor, or area (e.g. Powai, ENT)"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="h-14 md:h-20 border-none bg-transparent text-lg md:text-xl font-black focus:ring-0 placeholder:text-slate-400"
                 />
-                <Button className="h-12 md:h-16 px-8 md:px-12 rounded-[1.2rem] md:rounded-[2rem] bg-slate-900 text-white font-black text-lg ml-2 hover:scale-[1.02] active:scale-95 transition-all">Go</Button>
+                <Button className="h-12 md:h-16 px-8 md:px-12 rounded-[1.2rem] md:rounded-[2rem] bg-indigo-600 text-white font-black text-lg ml-2 hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-indigo-500/20">Find</Button>
               </div>
             </div>
 
-            <div className="flex flex-wrap justify-center gap-3 mt-8">
-              {locationLoading ? (
-                <Badge className="bg-white/10 text-white border-white/20 px-4 py-2 font-black text-[10px] uppercase">GPS Ping...</Badge>
-              ) : userLocation ? (
-                <Badge className="bg-emerald-500/20 text-emerald-400 border-none px-4 py-2 font-black text-[10px] uppercase flex items-center gap-2">
-                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div> Nearest First
+            <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
+              <span className="text-[10px] font-black text-white/40 uppercase tracking-widest mr-2">Quick Filters:</span>
+              {["Open Now", "< 30 Min Wait", "Emergency", "Specialist"].map(f => (
+                <Badge key={f} className="bg-white/5 hover:bg-white/10 text-white/60 border-white/10 cursor-pointer transition-colors px-3 py-1 font-bold text-[10px] uppercase">
+                  {f}
                 </Badge>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap justify-center items-center gap-4 mt-10">
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl px-4 py-2 border border-white/10 flex items-center gap-3">
+                <span className="text-[10px] font-black text-white/60 uppercase">Sort by:</span>
+                <select className="bg-transparent text-white font-black text-[10px] uppercase border-none focus:ring-0 outline-none cursor-pointer">
+                  <option className="bg-slate-900">Nearest First</option>
+                  <option className="bg-slate-900">Shortest Wait</option>
+                  <option className="bg-slate-900">Highly Rated</option>
+                </select>
+              </div>
+              {locationLoading ? (
+                <div className="flex items-center gap-2 text-white/60">
+                  <Activity className="h-3 w-3 animate-spin" />
+                  <span className="text-[10px] font-black uppercase">GPS Pinging...</span>
+                </div>
+              ) : userLocation ? (
+                <p className="text-[10px] font-black text-emerald-400 uppercase flex items-center gap-1">
+                  <MapPin className="h-3 w-3" /> Using precise location (Mumbai)
+                </p>
               ) : (
-                <Button variant="ghost" onClick={requestLocation} className="text-white/40 hover:text-white font-black text-[10px] uppercase tracking-widest p-0 h-auto">
-                  Enable Location Discovery
+                <Button variant="ghost" onClick={requestLocation} className="text-white/40 hover:text-white font-black text-[10px] uppercase tracking-widest p-0 h-auto flex items-center gap-2">
+                  <MapPin className="h-3 w-3" /> Enable GPS Discovery
                 </Button>
               )}
             </div>
@@ -279,66 +332,72 @@ export default function Patients() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
             {isLoading ? (
               [...Array(6)].map((_, i) => (
-                <Card key={i} className="bg-white/5 border-none h-[300px] animate-pulse rounded-[2.5rem]" />
+                <div key={i} className="glass-card h-[400px] animate-pulse rounded-[2.5rem] opacity-50" />
               ))
             ) : clinics.length === 0 ? (
-              <div className="col-span-full text-center py-20 px-10">
-                <div className="w-20 h-20 bg-white/5 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 border border-white/10">
+              <div className="col-span-full text-center py-24 px-10">
+                <div className="w-24 h-24 bg-white/5 rounded-[3rem] flex items-center justify-center mx-auto mb-8 border border-white/10 shadow-2xl">
                   <MapPin className="h-10 w-10 text-white/20" />
                 </div>
-                <h3 className="text-2xl font-black text-white mb-2">Inventory Empty</h3>
-                <p className="text-white/40 font-bold">Adjust your coordinates or search term.</p>
+                <h3 className="text-3xl font-black text-white mb-4 tracking-tighter">No Clinics Found</h3>
+                <p className="text-white/40 font-bold max-w-sm mx-auto">Try broadening your search area or checking different specialties.</p>
               </div>
             ) : (
               clinics.map((clinic) => (
                 <motion.div key={clinic.id} {...fadeInUp} layout>
                   <Card
-                    className="glass-card border-none overflow-hidden bg-white/95 backdrop-blur-2xl shadow-[0_50px_100px_-20px_rgba(0,0,0,0.1)] rounded-[2rem] group cursor-pointer active:scale-95 transition-all"
+                    className="glass-card border-none h-full"
                     onClick={() => { setSelectedClinicForDoctors(clinic); setIsDoctorsDialogOpen(true); }}
                   >
-                    <div className="p-8">
+                    <div className="p-8 h-full flex flex-col">
                       <div className="flex justify-between items-start mb-8">
-                        <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors duration-500">
+                        <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 shadow-sm">
                           <Hospital className="h-7 w-7" />
                         </div>
                         <div className="text-right">
-                          <Badge className={`font-black text-[10px] uppercase tracking-widest ${getStatusColor(clinic.status)}`}>
+                          <Badge className={`font-black text-[10px] uppercase tracking-widest px-3 py-1 rounded-full border ${getStatusColor(clinic.status)}`}>
                             {clinic.status}
                           </Badge>
                           {clinic.distance !== undefined && (
-                            <p className="text-[10px] font-black text-slate-400 mt-2">
-                              {clinic.distance < 1 ? `${Math.round(clinic.distance * 1000)}m Dist.` : `${clinic.distance.toFixed(1)}km Dist.`}
+                            <p className="text-[10px] font-black text-slate-400 mt-2 flex items-center justify-end gap-1">
+                              <Navigation className="h-3 w-3" /> {clinic.distance < 1 ? `${Math.round(clinic.distance * 1000)}m Dist.` : `${clinic.distance.toFixed(1)}km Dist.`}
                             </p>
                           )}
                         </div>
                       </div>
 
-                      <h3 className="text-2xl font-black text-slate-900 mb-2 leading-tight group-hover:text-primary transition-colors">{clinic.name}</h3>
-                      <p className="text-xs font-bold text-slate-400 flex items-center truncate mb-8">
-                        <MapPin className="h-4 w-4 mr-2" /> {clinic.address}
-                      </p>
+                      <div className="flex-1">
+                        <h3 className="text-2xl font-black text-slate-900 mb-2 leading-tight group-hover:text-indigo-600 transition-colors uppercase tracking-tight">{clinic.name}</h3>
+                        <p className="text-[10px] font-black text-slate-400 flex items-center truncate mb-8 uppercase tracking-widest">
+                          <MapPin className="h-4 w-4 mr-2 text-indigo-400" /> {getAreaFromAddress(clinic.address)}
+                        </p>
 
-                      <div className="grid grid-cols-2 gap-4 mb-8">
-                        <div className="p-4 bg-slate-50 flex flex-col rounded-2xl border border-slate-100">
-                          <span className="text-[9px] font-black text-slate-400 uppercase mb-1">Wait</span>
-                          <span className="text-xl font-black text-primary flex items-center gap-2"><Clock className="h-4 w-4" /> {clinic.currentWaitTime}m</span>
-                        </div>
-                        <div className="p-4 bg-slate-50 flex flex-col rounded-2xl border border-slate-100">
-                          <span className="text-[9px] font-black text-slate-400 uppercase mb-1">Queue</span>
-                          <span className="text-xl font-black text-secondary flex items-center gap-2"><Users className="h-4 w-4" /> {clinic.queueSize}</span>
+                        <div className="grid grid-cols-2 gap-4 mb-8">
+                          <div className="clinical-card p-4 flex flex-col relative group/hint">
+                            <span className="text-[9px] font-black text-slate-400 uppercase mb-1 tracking-widest">Est. Wait</span>
+                            <span className="text-xl font-black text-indigo-600 flex items-center gap-2"><Clock className="h-4 w-4" /> {clinic.currentWaitTime}m</span>
+                            {/* Wait Time Hint */}
+                            <div className="absolute -top-10 left-0 bg-slate-900 text-white text-[8px] font-black px-2 py-1 rounded-md opacity-0 group-hover/hint:opacity-100 transition-opacity pointer-events-none whitespace-nowrap uppercase tracking-tighter">
+                              For new arrivals
+                            </div>
+                          </div>
+                          <div className="clinical-card p-4 flex flex-col">
+                            <span className="text-[9px] font-black text-slate-400 uppercase mb-1 tracking-widest">Active Queue</span>
+                            <span className="text-xl font-black text-emerald-600 flex items-center gap-2"><Users className="h-4 w-4" /> {clinic.queueSize}</span>
+                          </div>
                         </div>
                       </div>
 
                       <div className="flex gap-3">
                         <Button
-                          className="flex-1 h-14 rounded-2xl bg-slate-900 text-white font-black hover:bg-slate-800 shadow-xl active:scale-95 transition-all"
+                          className="flex-1 h-14 rounded-2xl bg-slate-900 text-white font-black hover:bg-indigo-600 shadow-xl active:scale-95 transition-all text-sm uppercase tracking-wider"
                           disabled={isJoining || clinic.status === "closed"}
                           onClick={(e) => { e.stopPropagation(); handleJoinQueue(clinic); }}
                         >
-                          {isJoining ? <Activity className="h-5 w-5 animate-spin" /> : "Join Queue"}
+                          {isJoining ? <Activity className="h-5 w-5 animate-spin" /> : "Join Queue Now"}
                         </Button>
-                        <Button variant="ghost" className="h-14 w-14 rounded-2xl border border-slate-100 bg-slate-50 flex items-center justify-center p-0 active:scale-95">
-                          <ChevronRight className="h-6 w-6 text-slate-300" />
+                        <Button variant="ghost" className="h-14 w-14 rounded-2xl border border-slate-100 bg-slate-50 flex items-center justify-center p-0 active:scale-95 hover:bg-indigo-50 hover:border-indigo-100 transition-all">
+                          <ArrowRight className="h-6 w-6 text-slate-300 group-hover:text-indigo-500" />
                         </Button>
                       </div>
                     </div>
@@ -375,35 +434,42 @@ export default function Patients() {
               </div>
             ) : (
               clinicDoctors.map((doc: Doctor) => (
-                <Card key={doc.id} className="p-6 md:p-10 bg-slate-50/50 border-slate-100/50 rounded-[2rem] hover:bg-white hover:shadow-2xl transition-all group">
+                <div key={doc.id} className="premium-card p-6 md:p-10 group bg-white/80 backdrop-blur-md">
                   <div className="flex flex-col gap-8">
                     <div className="flex-1">
                       <div className="flex justify-between items-start mb-4">
-                        <h4 className="text-2xl font-black text-slate-900 leading-none">{doc.name}</h4>
-                        <Badge className="bg-primary/10 text-primary border-none font-black text-[10px] uppercase tracking-tight py-1">{doc.specialization}</Badge>
+                        <div>
+                          <h4 className="text-2xl font-black text-slate-900 leading-none mb-2">{doc.name}</h4>
+                          <Badge className="bg-indigo-50 text-indigo-600 border-indigo-100 font-black text-[10px] uppercase tracking-widest py-1 px-3">
+                            {doc.specialization}
+                          </Badge>
+                        </div>
+                        <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                          <User className="h-8 w-8" />
+                        </div>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
+                      <div className="flex flex-wrap items-center gap-x-8 gap-y-4 pt-4 border-t border-slate-100">
                         <div className="flex items-center text-xs font-black text-slate-600 gap-2">
-                          <Star className="h-4 w-4 fill-amber-400 text-amber-400" /> {doc.rating}
+                          <Star className="h-4 w-4 fill-amber-400 text-amber-400" /> {doc.rating} Rating
                         </div>
                         <div className="flex items-center text-xs font-black text-slate-600 gap-2">
-                          <Sparkles className="h-4 w-4 text-primary" /> {doc.experience_years}Y Exp.
+                          <Sparkles className="h-4 w-4 text-indigo-500" /> {doc.experience_years}Y Exp.
                         </div>
                         <div className="flex items-center text-xs font-black text-emerald-600 gap-1.5">
-                          <IndianRupee className="h-4 w-4" /> {doc.consultation_fee}
+                          <IndianRupee className="h-4 w-4" /> {doc.consultation_fee} Fee
                         </div>
                       </div>
                     </div>
                     <Button
-                      className="w-full h-16 rounded-[1.5rem] bg-slate-900 text-white font-black text-lg shadow-xl active:scale-95 transition-all"
+                      className="w-full h-16 rounded-2xl bg-indigo-600 text-white font-black text-lg shadow-xl shadow-indigo-100 hover:shadow-indigo-200 active:scale-95 transition-all uppercase tracking-wider"
                       disabled={isJoining}
                       onClick={() => handleJoinQueue(selectedClinicForDoctors!, doc)}
                     >
                       {isJoining ? <Activity className="h-6 w-6 animate-spin" /> : "Secure Specific Token"}
                     </Button>
                   </div>
-                </Card>
+                </div>
               ))
             )}
           </div>

@@ -69,10 +69,10 @@ export default function ClinicCard({ clinic }: ClinicCardProps) {
             <div className="border-t border-gray-200/50 pt-3">
               <div className="flex items-center text-sm text-gray-600 mb-2">
                 <User className="h-3 w-3 mr-1" />
-                <span className="font-medium">Available Doctors ({clinic.doctors.filter(d => d.isActive).length})</span>
+                <span className="font-medium">Available Doctors ({clinic.doctors.filter(d => d.is_active).length})</span>
               </div>
               <div className="space-y-1 max-h-20 overflow-y-auto">
-                {clinic.doctors.filter(d => d.isActive).slice(0, 3).map((doctor) => (
+                {clinic.doctors.filter(d => d.is_active).slice(0, 3).map((doctor) => (
                   <div key={doctor.id} className="flex items-center justify-between text-xs">
                     <span className="font-medium text-gray-900">{doctor.name}</span>
                     {doctor.rating && (
@@ -80,9 +80,9 @@ export default function ClinicCard({ clinic }: ClinicCardProps) {
                     )}
                   </div>
                 ))}
-                {clinic.doctors.filter(d => d.isActive).length > 3 && (
+                {clinic.doctors.filter(d => d.is_active).length > 3 && (
                   <div className="text-xs text-gray-500">
-                    +{clinic.doctors.filter(d => d.isActive).length - 3} more
+                    +{clinic.doctors.filter(d => d.is_active).length - 3} more
                   </div>
                 )}
               </div>

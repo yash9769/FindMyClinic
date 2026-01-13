@@ -4,9 +4,9 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageCircle, X, Send, Bot, User } from 'lucide-react';
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
+import { OpenAI } from 'openai';
 
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
 interface Message {
   id: string;
@@ -99,27 +99,9 @@ export default function Chatbot() {
     };
   }, [isDragging]);
 
-  const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-2.0-flash-exp',
-    safetySettings: [
-      {
-        category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-        threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-      },
-      {
-        category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-        threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-      },
-      {
-        category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-        threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-      },
-      {
-        category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-        threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-      },
-    ],
+  const openai = new OpenAI({
+    apiKey: OPENAI_API_KEY || 'dummy-key-to-prevent-crash',
+    dangerouslyAllowBrowser: true,
   });
 
   const sendMessage = async (content: string) => {
@@ -137,15 +119,21 @@ export default function Chatbot() {
     setIsLoading(true);
 
     try {
-      const prompt = `You are a helpful healthcare assistant chatbot for Find My Clinic. You provide general health information, answer questions about symptoms, and help users find appropriate medical care. Always be empathetic, informative, and remind users that you're not a substitute for professional medical advice.
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: "You are a helpful healthcare assistant chatbot for Find My Clinic. You provide general health information, answer questions about symptoms, and help users find appropriate medical care. Always be empathetic, informative, and remind users that you're not a substitute for professional medical advice. If the question involves serious symptoms or medical emergencies, strongly recommend seeking immediate professional medical help. Keep responses conversational and supportive."
+          },
+          {
+            role: "user",
+            content: content
+          }
+        ],
+      });
 
-User question: ${content}
-
-Please provide a helpful, accurate response. If the question involves serious symptoms or medical emergencies, strongly recommend seeking immediate professional medical help. Keep responses conversational and supportive.`;
-
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const botResponse = response.text();
+      const botResponse = completion.choices[0].message.content || "I'm sorry, I couldn't understand that.";
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -251,9 +239,8 @@ Please provide a helpful, accurate response. If the question involves serious sy
                   {messages.map((message) => (
                     <div
                       key={message.id}
-                      className={`flex gap-3 ${
-                        message.sender === 'user' ? 'justify-end' : 'justify-start'
-                      }`}
+                      className={`flex gap-3 ${message.sender === 'user' ? 'justify-end' : 'justify-start'
+                        }`}
                     >
                       {message.sender === 'bot' && (
                         <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -261,11 +248,10 @@ Please provide a helpful, accurate response. If the question involves serious sy
                         </div>
                       )}
                       <div
-                        className={`max-w-[85%] rounded-lg px-3 py-2 ${
-                          message.sender === 'user'
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-muted'
-                        }`}
+                        className={`max-w-[85%] rounded-lg px-3 py-2 ${message.sender === 'user'
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted'
+                          }`}
                       >
                         <p className="text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere">{message.content}</p>
                         <p className="text-xs opacity-70 mt-1">

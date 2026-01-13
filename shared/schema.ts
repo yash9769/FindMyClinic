@@ -17,11 +17,13 @@ export type Clinic = {
   email: string;
   latitude: string;
   longitude: string;
-  currentWaitTime: number | null;
-  queueSize: number | null;
+  current_wait_time: number | null;
+  currentWaitTime?: number | null; // Keep for compatibility
+  queue_size: number | null;
+  queueSize?: number | null; // Keep for compatibility
   status: string;
-  isActive: boolean | null;
-  createdAt: string | null;
+  is_active: boolean | null;
+  created_at: string | null;
   doctors?: Doctor[];
 };
 
@@ -61,12 +63,13 @@ export type Doctor = {
   name: string;
   email: string;
   phone: string;
-  clinicId: string;
+  clinic_id: string;
+  specialization: string;
   bio: string | null;
-  experience: number | null;
+  experience_years: number | null;
   rating: number | null;
-  isActive: boolean | null;
-  createdAt: string | null;
+  is_active: boolean | null;
+  created_at: string | null;
 };
 
 export type Specialty = {
@@ -96,16 +99,16 @@ export type Symptom = {
 
 export type SymptomAnalysis = {
   id: string;
-  symptomId: string;
-  recommendedSpecialtyId: string | null;
-  recommendedDoctorId: string | null;
-  analysisResult: string;
+  symptom_id: string;
+  recommended_specialty_id: string | null;
+  recommended_doctor_id: string | null;
+  analysis_result: string;
   confidence: number | null;
   urgency: string;
   recommendations: string | null;
-  possibleConditions: string[] | null;
+  possible_conditions: string[] | null;
   recommended_specialty: string | null;
-  createdAt: string | null;
+  created_at: string | null;
 };
 
 // Insert schemas using Zod

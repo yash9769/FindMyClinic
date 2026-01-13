@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { ArrowLeft, AlertTriangle, CheckCircle, Brain, Activity, Clock, Shield, Sparkles } from "lucide-react";
+import { ArrowLeft, AlertTriangle, CheckCircle, Brain, Activity, Clock, Shield, Sparkles, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +10,7 @@ import SymptomInput from "@/components/ui/symptom-input";
 import DoctorRecommendation from "@/components/ui/doctor-recommendation";
 import type { Symptom, SymptomAnalysis as SymptomAnalysisType, Doctor, Clinic } from "@shared/schema";
 import { supabase } from "@/lib/supabase";
-import { analyzeSymptomsWithGemini } from "@/lib/gemini";
+import { analyzeSymptomsWithOpenAI } from '@/lib/openai';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -48,7 +48,7 @@ export default function SymptomAnalysis() {
       if (symptomError) throw symptomError;
       setSymptomData(symptom);
 
-      const geminiResult = await analyzeSymptomsWithGemini(
+      const geminiResult = await analyzeSymptomsWithOpenAI(
         data.description,
         data.severity,
         data.duration,
@@ -243,96 +243,79 @@ export default function SymptomAnalysis() {
                 </Alert>
 
                 <div className="grid md:grid-cols-3 gap-6">
-                  <Card className="glass-card border-none">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-semibold uppercase tracking-wider text-slate-500 flex items-center">
-                        <Activity className="h-4 w-4 mr-2" />
-                        Urgency level
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className={`text-2xl font-black ${analysisData.urgency.toLowerCase().includes('high') || analysisData.urgency.toLowerCase().includes('emergency')
-                          ? 'text-red-500'
-                          : 'text-emerald-500'
-                        }`}>
-                        {analysisData.urgency}
-                      </p>
-                    </CardContent>
-                  </Card>
+                  <div className="premium-card bg-white p-6 md:p-8">
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 flex items-center mb-4">
+                      <Activity className="h-4 w-4 mr-2 text-rose-500" />
+                      Urgency Data
+                    </span>
+                    <p className={`text-3xl md:text-4xl font-black ${analysisData.urgency?.toLowerCase().includes('high') || analysisData.urgency?.toLowerCase().includes('emergency')
+                      ? 'text-rose-600'
+                      : 'text-emerald-500'
+                      }`}>
+                      {analysisData.urgency}
+                    </p>
+                  </div>
 
-                  <Card className="glass-card border-none">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-semibold uppercase tracking-wider text-slate-500 flex items-center">
-                        <Sparkles className="h-4 w-4 mr-2" />
-                        AI Confidence
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-2xl font-black text-primary">
-                        {analysisData.confidence}%
-                      </p>
-                    </CardContent>
-                  </Card>
+                  <div className="premium-card bg-white p-6 md:p-8">
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 flex items-center mb-4">
+                      <Sparkles className="h-4 w-4 mr-2 text-indigo-500" />
+                      AI Confidence
+                    </span>
+                    <p className="text-3xl md:text-4xl font-black text-indigo-600">
+                      {analysisData.confidence}%
+                    </p>
+                  </div>
 
-                  <Card className="glass-card border-none">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-semibold uppercase tracking-wider text-slate-500 flex items-center">
-                        <Shield className="h-4 w-4 mr-2" />
-                        Specialty
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-2xl font-black text-slate-900">
-                        {analysisData.recommended_specialty || "General Medicine"}
-                      </p>
-                    </CardContent>
-                  </Card>
+                  <div className="premium-card bg-white p-6 md:p-8">
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 flex items-center mb-4">
+                      <Shield className="h-4 w-4 mr-2 text-emerald-500" />
+                      Recommended
+                    </span>
+                    <p className="text-3xl md:text-4xl font-black text-slate-900 truncate">
+                      {analysisData.recommended_specialty || "General"}
+                    </p>
+                  </div>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-8">
-                  <Card className="glass-card border-none">
-                    <CardHeader>
-                      <CardTitle className="text-xl font-bold">Analysis Summary</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
+                  <div className="premium-card bg-white overflow-hidden p-8 md:p-12">
+                    <h3 className="text-2xl font-black text-slate-900 mb-8 uppercase tracking-tight flex items-center gap-3">
+                      <Brain className="h-7 w-7 text-indigo-600" /> Analysis Summary
+                    </h3>
+                    <div className="space-y-8">
                       <div>
-                        <h4 className="text-sm font-semibold text-slate-500 mb-2">CLINICAL ASSESSMENT</h4>
-                        <p className="text-slate-700 leading-relaxed font-medium">
-                          {analysisData.analysisResult}
+                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">CLINICAL ASSESSMENT</h4>
+                        <p className="text-slate-700 leading-relaxed font-bold text-lg">
+                          {analysisData.analysis_result}
                         </p>
                       </div>
 
-                      {analysisData.possibleConditions && analysisData.possibleConditions.length > 0 && (
+                      {analysisData.possible_conditions && (analysisData.possible_conditions.length > 0) && (
                         <div>
-                          <h4 className="text-sm font-semibold text-slate-500 mb-2">POTENTIAL CONDITIONS</h4>
+                          <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">POTENTIAL CONDITIONS</h4>
                           <div className="flex flex-wrap gap-2">
-                            {analysisData.possibleConditions.map((cond, i) => (
-                              <span key={i} className="px-3 py-1 bg-white/50 border border-slate-200 rounded-full text-sm font-semibold text-slate-700">
+                            {(analysisData.possible_conditions as string[]).map((cond, i) => (
+                              <span key={i} className="px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-indigo-100">
                                 {cond}
                               </span>
                             ))}
                           </div>
                         </div>
                       )}
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
 
-                  <Card className="glass-card border-none">
-                    <CardHeader>
-                      <CardTitle className="text-xl font-bold">Next Steps</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="bg-primary/5 rounded-2xl p-6 border border-primary/10">
-                        <h4 className="text-primary font-bold mb-3 flex items-center">
-                          <Clock className="h-4 w-4 mr-2" />
-                          RECOMMENDATIONS
-                        </h4>
-                        <p className="text-slate-700 leading-relaxed">
-                          {analysisData.recommendations}
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <div className="premium-card bg-white p-8 md:p-12">
+                    <h3 className="text-2xl font-black text-slate-900 mb-8 uppercase tracking-tight flex items-center gap-3">
+                      <Clock className="h-7 w-7 text-emerald-500" /> Next Steps
+                    </h3>
+                    <div className="bg-emerald-50/50 rounded-3xl p-8 border border-emerald-100/50">
+                      <h4 className="text-emerald-700 font-black text-[10px] uppercase tracking-widest mb-4">Clinical Protocol</h4>
+                      <p className="text-slate-700 leading-relaxed font-bold text-lg italic">
+                        "{analysisData.recommendations}"
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="pt-4">
@@ -344,7 +327,7 @@ export default function SymptomAnalysis() {
                     doctor={doctor}
                     clinic={clinic}
                     confidence={analysisData.confidence || 0}
-                    analysisResult={analysisData.analysisResult}
+                    analysisResult={analysisData.analysis_result}
                     urgency={analysisData.urgency}
                     onBookAppointment={(id) => navigate(`/clinics?doctor=${id}&book=true`)}
                   />

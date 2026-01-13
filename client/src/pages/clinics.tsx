@@ -173,17 +173,17 @@ export default function Clinics() {
                   { icon: MessageSquare, title: "Multi-Channel Alerts", desc: "Patient notifications via WhatsApp, SMS, and Push without extra hardware.", color: "secondary" },
                   { icon: Shield, title: "Military-Grade Security", desc: "End-to-end encrypted medical record exchange protecting patient privacy.", color: "emerald-400" }
                 ].map((item, i) => (
-                  <Card key={i} className="glass-card border-none bg-white/95 backdrop-blur-2xl rounded-[2rem] shadow-xl group hover:scale-[1.02] transition-all">
-                    <CardContent className="p-8 flex gap-6">
-                      <div className={`w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:bg-slate-900 group-hover:text-white transition-colors`}>
-                        <item.icon className="h-7 w-7" />
+                  <div key={i} className="premium-card bg-white p-8 group">
+                    <div className="flex gap-6">
+                      <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 shadow-sm">
+                        <item.icon className="h-8 w-8" />
                       </div>
-                      <div>
-                        <h4 className="text-xl font-black text-slate-900 mb-2">{item.title}</h4>
+                      <div className="flex-1">
+                        <h4 className="text-xl font-black text-slate-900 mb-2 uppercase tracking-tight">{item.title}</h4>
                         <p className="text-sm font-bold text-slate-500 leading-relaxed">{item.desc}</p>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
@@ -241,12 +241,14 @@ export default function Clinics() {
                     </div>
                   </div>
 
-                  <div className="p-8 bg-emerald-500 text-white rounded-[2rem] flex items-center justify-between shadow-xl">
-                    <div className="flex items-center gap-4">
-                      <Clock className="h-6 w-6" />
-                      <span className="font-black text-lg">Live Wait Estimate</span>
+                  <div className="premium-card bg-indigo-600 text-white p-8 flex items-center justify-between shadow-2xl shadow-indigo-500/20">
+                    <div className="flex items-center gap-6">
+                      <div className="p-4 bg-white/20 backdrop-blur-md rounded-2xl border border-white/20">
+                        <Clock className="h-8 w-8" />
+                      </div>
+                      <span className="font-black text-xl uppercase tracking-widest text-indigo-100">Live Queue Delta</span>
                     </div>
-                    <span className="text-4xl font-black italic">~{bookingClinic.currentWaitTime || 30}m</span>
+                    <span className="text-4xl md:text-5xl font-black italic tracking-tighter">~{bookingClinic.currentWaitTime || 30}m</span>
                   </div>
 
                   <div className="flex gap-4 pt-6">

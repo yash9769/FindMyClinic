@@ -132,12 +132,15 @@ export default function Profile() {
           <div className="space-y-8">
             <motion.div {...fadeInUp}>
               <Card className="glass-card border-none bg-white/95 backdrop-blur-2xl overflow-hidden h-full shadow-2xl">
-                <CardHeader className="p-8 pb-4">
-                  <CardTitle className="text-2xl font-black text-slate-900 flex items-center gap-3">
-                    <User className="h-6 w-6 text-primary" /> Core Identity
+                <CardHeader className="p-8 md:p-10 pb-4">
+                  <CardTitle className="text-2xl md:text-3xl font-black text-slate-900 flex items-center gap-4">
+                    <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center shadow-sm">
+                      <User className="h-6 w-6" />
+                    </div>
+                    Core Identity
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-8 space-y-6">
+                <CardContent className="p-8 md:p-10 space-y-6">
                   <div className="grid sm:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <Label className="font-black text-slate-400 uppercase tracking-widest text-[10px]">Full Name *</Label>
@@ -165,12 +168,15 @@ export default function Profile() {
 
             <motion.div {...fadeInUp} transition={{ delay: 0.1 }}>
               <Card className="glass-card border-none bg-white/95 backdrop-blur-2xl overflow-hidden h-full shadow-2xl">
-                <CardHeader className="p-8 pb-4">
-                  <CardTitle className="text-2xl font-black text-slate-900 flex items-center gap-3">
-                    <Heart className="h-6 w-6 text-rose-500" /> Medical Baseline
+                <CardHeader className="p-8 md:p-10 pb-4">
+                  <CardTitle className="text-2xl md:text-3xl font-black text-slate-900 flex items-center gap-4">
+                    <div className="w-12 h-12 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center shadow-sm">
+                      <Heart className="h-6 w-6" />
+                    </div>
+                    Medical Baseline
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-8 space-y-6">
+                <CardContent className="p-8 md:p-10 space-y-6">
                   <div className="space-y-2">
                     <Label className="font-black text-slate-400 uppercase tracking-widest text-[10px]">Critical Allergies</Label>
                     <Textarea className="rounded-xl bg-slate-50 border-slate-100 min-h-[100px] font-bold" placeholder="List any known allergies..." value={profileData.allergies} onChange={e => setProfileData({ ...profileData, allergies: e.target.value })} />
@@ -188,12 +194,15 @@ export default function Profile() {
           <div className="space-y-8">
             <motion.div {...fadeInUp} transition={{ delay: 0.2 }}>
               <Card className="glass-card border-none bg-white/95 backdrop-blur-2xl overflow-hidden h-full shadow-2xl">
-                <CardHeader className="p-8 pb-4">
-                  <CardTitle className="text-2xl font-black text-slate-900 flex items-center gap-3">
-                    <Shield className="h-6 w-6 text-emerald-500" /> Protection & Hub
+                <CardHeader className="p-8 md:p-10 pb-4">
+                  <CardTitle className="text-2xl md:text-3xl font-black text-slate-900 flex items-center gap-4">
+                    <div className="w-12 h-12 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center shadow-sm">
+                      <Shield className="h-6 w-6" />
+                    </div>
+                    Protection & Hub
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-8 space-y-6">
+                <CardContent className="p-8 md:p-10 space-y-6">
                   <div className="grid sm:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <Label className="font-black text-slate-400 uppercase tracking-widest text-[10px]">Emergency Contact</Label>
@@ -225,12 +234,15 @@ export default function Profile() {
 
             <motion.div {...fadeInUp} transition={{ delay: 0.3 }}>
               <Card className="glass-card border-none bg-white/95 backdrop-blur-2xl overflow-hidden h-full shadow-2xl">
-                <CardHeader className="p-8 pb-4">
-                  <CardTitle className="text-2xl font-black text-slate-900 flex items-center gap-3">
-                    <Pill className="h-6 w-6 text-amber-500" /> Active Medications
+                <CardHeader className="p-8 md:p-10 pb-4">
+                  <CardTitle className="text-2xl md:text-3xl font-black text-slate-900 flex items-center gap-4">
+                    <div className="w-12 h-12 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center shadow-sm">
+                      <Pill className="h-6 w-6" />
+                    </div>
+                    Active Medications
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-8">
+                <CardContent className="p-8 md:p-10">
                   <div className="space-y-2">
                     <Label className="font-black text-slate-400 uppercase tracking-widest text-[10px]">Current Regimen</Label>
                     <Textarea className="rounded-xl bg-slate-50 border-slate-100 min-h-[140px] font-bold" placeholder="Names and dosages..." value={profileData.medications} onChange={e => setProfileData({ ...profileData, medications: e.target.value })} />
@@ -263,15 +275,20 @@ export default function Profile() {
 
         {showQRCode && (
           <motion.div {...fadeInUp}>
-            <Card className="glass-card border-none bg-slate-900/95 backdrop-blur-3xl text-white p-12 text-center relative overflow-hidden shadow-[0_40px_80px_rgba(0,0,0,0.5)]">
-              <div className="max-w-xl mx-auto space-y-8 relative z-10">
-                <div className="w-20 h-20 bg-primary rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-lg shadow-primary/20">
-                  <QrCode className="h-10 w-10 text-white" />
-                </div>
-                <h2 className="text-3xl md:text-5xl font-black tracking-tighter">Your Universal <span className="text-primary italic">Health Link</span></h2>
-                <p className="text-slate-400 font-bold">Present this QR to clinic personnel for instant and error-free clinical data transfer.</p>
-                <div className="p-8 bg-white rounded-[2.5rem] shadow-inner inline-block">
-                  <QRCode value={qrCodeUrl} size={220} level="H" />
+            <Card className="glass-card bg-slate-900 border-none shadow-[0_40px_80px_rgba(0,0,0,0.5)]">
+              <div className="p-12 text-center relative overflow-hidden">
+                <div className="max-w-xl mx-auto space-y-10 relative z-10">
+                  <div className="w-20 h-20 bg-indigo-600 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-indigo-500/20">
+                    <QrCode className="h-10 w-10 text-white" />
+                  </div>
+                  <h2 className="text-3xl md:text-5xl font-black text-white tracking-tighter uppercase">Universal <span className="text-indigo-400 italic">Passport Link</span></h2>
+                  <p className="text-slate-400 font-bold max-w-sm mx-auto">Present this secure signature to any clinical facility for instant profile synchronization.</p>
+                  <div className="p-10 bg-white rounded-[3rem] shadow-2xl inline-block transform transition-transform hover:scale-105 duration-500">
+                    <QRCode value={qrCodeUrl} size={220} level="H" />
+                  </div>
+                  <div className="pt-6">
+                    <Badge className="bg-white/5 text-white border-white/10 px-6 py-2 rounded-full font-black text-[10px] tracking-widest uppercase">Encryption Active: AES-256</Badge>
+                  </div>
                 </div>
               </div>
             </Card>
