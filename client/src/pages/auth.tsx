@@ -76,188 +76,135 @@ export default function Auth() {
     setLoading(false);
   };
 
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <div className="min-h-screen w-full flex overflow-hidden bg-white">
       {/* Left Side - Hero Section */}
-      <div className="hidden md:flex w-1/2 relative flex-col justify-center items-center p-12 text-white overflow-hidden bg-gradient-to-br from-[#0f4c75] to-[#1b262c]">
+      <div className="hidden md:flex w-1/2 relative flex-col justify-center items-center p-12 text-white overflow-hidden bg-gradient-to-br from-[#0f4c75] to-[#0a0f12]">
         {/* Background Effects */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
-          <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-teal-500/20 rounded-full blur-[120px]" />
-          <div className="absolute bottom-[-20%] right-[-20%] w-[80%] h-[80%] bg-blue-600/20 rounded-full blur-[120px]" />
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-teal-500/20 rounded-full blur-[100px]" />
         </div>
 
         {/* Content */}
-        <div className="relative z-10 flex flex-col items-center text-center max-w-lg">
+        <div className="relative z-10 flex flex-col items-center text-center">
           <img
             src={loginHero}
             alt="Healthcare Simplified"
-            className="w-full max-w-[380px] drop-shadow-2xl animate-float mb-8"
+            className="w-full max-w-[320px] drop-shadow-2xl animate-float mb-12"
           />
-          <div>
-            <h1 className="text-4xl md:text-5xl font-bold font-display mb-4 tracking-tight">
-              Healthcare <br />
-              Simplified
-            </h1>
-            <p className="text-slate-300 text-lg leading-relaxed max-w-md mx-auto">
-              Experience the next generation of clinic management. Join queues remotely, track live status, and get AI-powered health insights.
-            </p>
-          </div>
+          <h1 className="text-4xl md:text-5xl font-bold font-display tracking-tight leading-tight">
+            Healthcare <br />
+            Simplified
+          </h1>
         </div>
       </div>
 
       {/* Right Side - Auth Form */}
       <div className="w-full md:w-1/2 flex flex-col items-center justify-center p-6 md:p-12 relative bg-white">
         {/* Logo Top Right */}
-        <div className="absolute top-8 right-8 flex items-center gap-2">
-          <span className="text-xl font-bold text-slate-900 tracking-tight">FindMyClinic</span>
-          <div className="p-1.5 bg-blue-600 rounded-lg">
-            <Chrome className="w-4 h-4 text-white" />
-          </div>
+        <div className="absolute top-12 right-12 flex items-center gap-1">
+          <span className="text-xl font-bold text-slate-800 tracking-tight">FindMy</span>
+          <span className="text-xl font-bold text-teal-600 tracking-tight">Clinic</span>
         </div>
 
-        <div className="w-full max-w-sm space-y-8 mt-12">
-          {/* Default Login View (Matches mockup) */}
-          <div className="space-y-6">
-            {/* Fake Inputs for visual match if no method selected, or act as direct email login ?? 
-                 Let's implementation actual functional form that LOOKS like the mockup.
-             */}
+        <div className="w-full max-w-sm space-y-6 mt-8">
+          <div className="space-y-5">
+            {/* Email Input */}
+            <div className="space-y-1.5">
+              <Label className="text-slate-500 font-medium text-sm">Email</Label>
+              <Input
+                name="email"
+                type="email"
+                placeholder=""
+                className="h-12 bg-slate-50/50 border-slate-200 focus:bg-white focus:border-blue-500 rounded-xl transition-all"
+                onChange={(e) => {
+                  // Just to ensure capturing input if needed, though we primarily handle via form submission if wrapped
+                }}
+              />
+            </div>
 
-            {!authMethod ? (
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label className="text-slate-600">Email</Label>
-                  <Input
-                    placeholder=""
-                    className="h-12 bg-slate-50 border-slate-200 focus:bg-white transition-all"
-                    onChange={(e) => {
-                      // If user starts typing, switch to email method implicitly or just store it
-                      setAuthMethod('email');
-                    }}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-slate-600">Password</Label>
-                  <div className="relative">
-                    <Input
-                      type="password"
-                      placeholder=""
-                      className="h-12 bg-slate-50 border-slate-200 focus:bg-white transition-all"
-                    />
-                  </div>
-                </div>
-
-                <div className="pt-2 space-y-4">
-                  {/* The mockup shows Google button BLUE and Email button WHITE. 
-                         I will make Google the primary visual button for accurate matching, 
-                         but functionally it's the Google Auth.
-                     */}
-                  <Button
-                    onClick={() => setAuthMethod('google')}
-                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-lg shadow-blue-600/20"
-                    disabled={loading}
-                  >
-                    <Chrome className="mr-2 h-5 w-5" />
-                    Sign in with Google
-                  </Button>
-
-                  <div className="relative flex items-center py-2">
-                    <span className="w-full border-t border-slate-200" />
-                    <span className="px-3 text-xs text-slate-400 uppercase bg-white">or</span>
-                    <span className="w-full border-t border-slate-200" />
-                  </div>
-
-                  <Button
-                    onClick={() => setAuthMethod('email')}
-                    variant="outline"
-                    className="w-full h-12 border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-                    disabled={loading}
-                  >
-                    Sign in with Email
-                  </Button>
-                </div>
+            {/* Password Input */}
+            <div className="space-y-1.5">
+              <Label className="text-slate-500 font-medium text-sm">Password</Label>
+              <div className="relative">
+                <Input
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder=""
+                  className="h-12 bg-slate-50/50 border-slate-200 focus:bg-white focus:border-blue-500 rounded-xl transition-all pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  {showPassword ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" /><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" /><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7c.84 0 1.68-.09 2.48-.26" /><line x1="2" x2="22" y1="2" y2="22" /></svg>
+                  )}
+                </button>
               </div>
-            ) : (
-              /* Active View (If clicked) - Keeping functional logic */
-              <>
-                <div className="text-left mb-6">
-                  <Button variant="ghost" className="pl-0 hover:bg-transparent hover:text-blue-600 -ml-2" onClick={() => setAuthMethod(null)}>
-                    ← Back
-                  </Button>
-                  <h2 className="text-2xl font-bold text-slate-900 mt-2">
-                    {authMethod === 'email' ? 'Email Sign In' : 'Google Sign In'}
-                  </h2>
-                </div>
+            </div>
 
-                {authMethod === 'google' && (
-                  <div className="text-center space-y-6">
-                    <div className="p-6 bg-blue-50 rounded-2xl border border-blue-100">
-                      <p className="text-blue-800 font-medium mb-4">Complete sign in with your Google account</p>
-                      <Button
-                        onClick={async () => {
-                          setLoading(true);
-                          setError(null);
-                          localStorage.setItem('pendingUserType', 'patient');
-                          const { error } = await signInWithGoogle();
-                          if (error) {
-                            setError(error.message);
-                            setLoading(false);
-                          }
-                        }}
-                        className="w-full h-12 bg-blue-600 hover:bg-blue-700 shadow-xl shadow-blue-600/20"
-                        disabled={loading}
-                      >
-                        <Chrome className="mr-2 h-5 w-5" />
-                        Continue to Google
-                      </Button>
-                    </div>
-                  </div>
-                )}
+            {/* Google Button */}
+            <Button
+              onClick={async () => {
+                setLoading(true);
+                setError(null);
+                localStorage.setItem('pendingUserType', 'patient');
+                const { error } = await signInWithGoogle();
+                if (error) {
+                  setError(error.message);
+                  setLoading(false);
+                }
+              }}
+              className="w-full h-12 bg-[#4285F4] hover:bg-[#3b77db] text-white font-medium shadow-md shadow-blue-500/20 rounded-full mt-4"
+              disabled={loading}
+            >
+              <div className="bg-white p-1 rounded-full mr-2">
+                <Chrome className="h-4 w-4 text-[#4285F4]" />
+              </div>
+              Sign in with Google
+            </Button>
 
-                {authMethod === 'email' && (
-                  <Tabs defaultValue="signin" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 mb-6">
-                      <TabsTrigger value="signin">Sign In</TabsTrigger>
-                      <TabsTrigger value="signup">Sign Up</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="signin">
-                      <form onSubmit={handleSignIn} className="space-y-4">
-                        <div className="space-y-2">
-                          <Label>Email</Label>
-                          <Input name="email" type="email" required className="h-11" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Password</Label>
-                          <Input name="password" type="password" required className="h-11" />
-                        </div>
-                        {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
-                        <Button type="submit" className="w-full h-12 bg-blue-600 hover:bg-blue-700" disabled={loading}>
-                          {loading && <Loader2 className="animate-spin mr-2" />} Sign In
-                        </Button>
-                      </form>
-                    </TabsContent>
-                    <TabsContent value="signup">
-                      <form onSubmit={handleSignUp} className="space-y-4">
-                        <div className="space-y-2"><Label>Name</Label><Input name="name" required className="h-11" /></div>
-                        <div className="space-y-2"><Label>Email</Label><Input name="email" type="email" required className="h-11" /></div>
-                        <div className="space-y-2"><Label>Password</Label><Input name="password" type="password" required className="h-11" /></div>
-                        <div className="space-y-2"><Label>Confirm</Label><Input name="confirmPassword" type="password" required className="h-11" /></div>
-                        {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
-                        <Button type="submit" className="w-full h-12 bg-blue-600 hover:bg-blue-700" disabled={loading}>
-                          {loading && <Loader2 className="animate-spin mr-2" />} Create Account
-                        </Button>
-                      </form>
-                    </TabsContent>
-                  </Tabs>
-                )}
-              </>
+            {/* Separator */}
+            <div className="relative flex items-center py-2">
+              <span className="w-full border-t border-slate-200" />
+              <span className="px-3 text-xs text-slate-400 bg-white">or</span>
+              <span className="w-full border-t border-slate-200" />
+            </div>
+
+            {/* Email Sign In Button */}
+            <Button
+              onClick={(e) => {
+                // Find inputs and trigger sign in
+                // In a real controlled form we'd use state, but here capturing from DOM for simplicity with the "fake form" structure requested
+                const emailInput = document.querySelector('input[name="email"]') as HTMLInputElement;
+                const passInput = document.querySelector('input[name="password"]') as HTMLInputElement;
+                if (emailInput?.value && passInput?.value) {
+                  signIn(emailInput.value, passInput.value).then(({ error }) => {
+                    if (error) setError(error.message);
+                    else setLocation('/home');
+                  });
+                } else {
+                  setError("Please enter both email and password");
+                }
+              }}
+              variant="outline"
+              className="w-full h-12 border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-full font-medium"
+              disabled={loading}
+            >
+              Sign in with Email
+            </Button>
+
+            {error && (
+              <Alert variant="destructive" className="mt-4 border-none bg-red-50 text-red-600">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
             )}
-          </div>
-
-          {/* Footer Links */}
-          <div className="absolute bottom-6 flex justify-center gap-6 text-xs text-slate-400">
-            <a href="#" className="hover:text-slate-600">Privacy</a>
-            <a href="#" className="hover:text-slate-600">Terms</a>
-            <a href="#" className="hover:text-slate-600">Help</a>
           </div>
         </div>
       </div>
