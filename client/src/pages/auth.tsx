@@ -76,8 +76,9 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-secondary/5 p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center mesh-gradient relative p-4">
+      <div className="noise"></div>
+      <Card className="w-full max-w-md glass-card border-none shadow-2xl relative z-10">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Welcome to Find My Clinic</CardTitle>
           <CardDescription>

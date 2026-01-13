@@ -1,24 +1,31 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { ArrowLeft, AlertTriangle, CheckCircle } from "lucide-react";
+import { ArrowLeft, AlertTriangle, CheckCircle, Brain, Activity, Clock, Shield, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { motion, AnimatePresence } from "framer-motion";
 import SymptomInput from "@/components/ui/symptom-input";
 import DoctorRecommendation from "@/components/ui/doctor-recommendation";
-import type { Symptom, SymptomAnalysis, Doctor, Clinic } from "@shared/schema";
+import type { Symptom, SymptomAnalysis as SymptomAnalysisType, Doctor, Clinic } from "@shared/schema";
 import { supabase } from "@/lib/supabase";
 import { analyzeSymptomsWithGemini } from "@/lib/gemini";
-import AI from "@/images/AI.jpg";
+
+const fadeInUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 },
+  transition: { duration: 0.5 }
+};
 
 export default function SymptomAnalysis() {
   const [, navigate] = useLocation();
   const [currentStep, setCurrentStep] = useState<"input" | "analyzing" | "results">("input");
   const [symptomData, setSymptomData] = useState<Symptom | null>(null);
-  const [analysisData, setAnalysisData] = useState<SymptomAnalysis | null>(null);
+  const [analysisData, setAnalysisData] = useState<SymptomAnalysisType | null>(null);
   const [rawGeminiResponse, setRawGeminiResponse] = useState<string>("");
 
-  // Submit symptom mutation
   const submitSymptomMutation = useMutation({
     mutationFn: async (data: {
       description: string;
@@ -27,7 +34,6 @@ export default function SymptomAnalysis() {
       image?: File;
       additionalNotes?: string;
     }) => {
-      // Create symptom record
       const { data: symptom, error: symptomError } = await supabase
         .from('symptoms')
         .insert([{
@@ -42,7 +48,6 @@ export default function SymptomAnalysis() {
       if (symptomError) throw symptomError;
       setSymptomData(symptom);
 
-      // Call Gemini API for analysis
       const geminiResult = await analyzeSymptomsWithGemini(
         data.description,
         data.severity,
@@ -51,12 +56,8 @@ export default function SymptomAnalysis() {
         data.image
       );
 
-      console.log('Gemini analysis result:', geminiResult);
-
-      // Store raw Gemini response for UI display
       setRawGeminiResponse(geminiResult.rawResponse || '');
 
-      // Create analysis record with Gemini results
       const analysisData = {
         id: crypto.randomUUID(),
         symptom_id: symptom.id,
@@ -89,13 +90,10 @@ export default function SymptomAnalysis() {
     },
   });
 
-  // Get doctor based on recommended specialty from analysis
   const { data: doctor } = useQuery({
     queryKey: ["recommended-doctor", analysisData?.recommended_specialty],
     queryFn: async () => {
       if (!analysisData?.recommended_specialty) return null;
-
-      // Get a doctor that matches the recommended specialty
       const { data, error } = await supabase
         .from('doctors')
         .select('*')
@@ -105,8 +103,6 @@ export default function SymptomAnalysis() {
         .single();
 
       if (error) {
-        // Fallback: Get any active doctor if no match found
-        console.log(`No doctor found for specialty ${analysisData.recommended_specialty}, getting any active doctor`);
         const { data: fallbackData, error: fallbackError } = await supabase
           .from('doctors')
           .select('*')
@@ -115,7 +111,6 @@ export default function SymptomAnalysis() {
           .single();
 
         if (fallbackError) {
-          // Return mock data if no doctors exist
           return {
             id: 'mock-doctor',
             name: 'Dr. Sarah Johnson',
@@ -169,244 +164,233 @@ export default function SymptomAnalysis() {
     enabled: !!doctor,
   });
 
-  const handleSymptomSubmit = (data: {
-    description: string;
-    severity: string;
-    duration?: string;
-    image?: File;
-    additionalNotes?: string;
-  }) => {
-    setCurrentStep("analyzing");
-    submitSymptomMutation.mutate(data);
-  };
-
-  const handleBookAppointment = (doctorId: string) => {
-    // Navigate to clinic page with doctor parameter for booking
-    navigate(`/clinics?doctor=${doctorId}&book=true`);
-  };
-
-  const handleStartOver = () => {
-    setCurrentStep("input");
-    setSymptomData(null);
-    setAnalysisData(null);
-  };
-
   return (
-    <div
-      className="min-h-screen"
-      style={{
-        backgroundImage: `url(${AI})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundAttachment: 'fixed',
-      }}
-    >
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage: `url(${AI})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          backgroundAttachment: 'fixed',
-          filter: 'brightness(0) blur(2px)',
-          zIndex: -1
-        }}
-      ></div>
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="max-w-4xl mx-auto mb-8">
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/")}
-            className="mb-4"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Home
-          </Button>
+    <div className="min-h-screen relative overflow-hidden mesh-gradient">
+      <div className="noise"></div>
 
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Symptom Analysis & Doctor Recommendations
-            </h1>
-            <p className="text-gray-600">
-              Describe your symptoms and get personalized healthcare recommendations
-            </p>
-          </div>
-        </div>
-
-        {/* Content */}
+      <div className="container mx-auto px-4 py-12 relative z-10">
         <div className="max-w-4xl mx-auto">
-          {currentStep === "input" && (
-            <div className="animate-fade-in">
-              <SymptomInput
-                onSubmit={handleSymptomSubmit}
-                isLoading={submitSymptomMutation.isPending}
-              />
+          <motion.div {...fadeInUp} className="mb-8">
+            <Button
+              variant="ghost"
+              onClick={() => navigate("/")}
+              className="mb-6 hover:bg-white/20 transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Home
+            </Button>
 
-              {/* Disclaimer */}
-              <div className="mt-6">
-                <Alert>
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertDescription>
-                    This tool provides general recommendations based on your symptoms.
-                    It is not a substitute for professional medical advice, diagnosis, or treatment.
-                    Always consult with a qualified healthcare provider for medical concerns.
-                  </AlertDescription>
-                </Alert>
-              </div>
-            </div>
-          )}
-
-          {currentStep === "analyzing" && (
-            <div className="text-center py-12 animate-fade-in">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              </div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                Analyzing Your Symptoms
-              </h2>
-              <p className="text-gray-600">
-                Please wait while we process your information and find the best healthcare recommendations...
+            <div className="text-center mb-12">
+              <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">
+                AI <span className="text-gradient">Symptom Analyzer</span>
+              </h1>
+              <p className="text-lg text-slate-600 font-medium max-w-2xl mx-auto">
+                Discover personalized healthcare recommendations powered by advanced AI analysis.
               </p>
             </div>
-          )}
+          </motion.div>
 
-          {currentStep === "results" && analysisData && doctor && clinic && (
-            <div className="animate-fade-in space-y-6">
-              {/* Success Message */}
-              <Alert className="border-green-200 bg-green-50">
-                <CheckCircle className="h-4 w-4 text-green-600" />
-                <AlertDescription className="text-green-800">
-                  Analysis complete! Here are our recommendations based on your symptoms.
-                </AlertDescription>
-              </Alert>
-
-              {/* Symptom Summary */}
-              <div className="bg-white rounded-lg p-6 shadow-sm border">
-                <h3 className="text-lg font-semibold mb-4">Your Symptoms</h3>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-gray-600">Description</p>
-                    <p className="font-medium">{symptomData?.description}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Severity</p>
-                    <p className="font-medium capitalize">{symptomData?.severity}</p>
-                  </div>
-                  {symptomData?.duration && (
-                    <div>
-                      <p className="text-sm text-gray-600">Duration</p>
-                      <p className="font-medium">{symptomData.duration}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Gemini Analysis Results */}
-              <div className="bg-green-50 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-green-900 mb-2">
-                  AI Analysis Results
-                </h3>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <p className="text-green-800"><strong>Analysis:</strong> {analysisData.analysisResult}</p>
-                    <p className="text-green-800"><strong>Confidence:</strong> {analysisData.confidence}%</p>
-                    <p className="text-green-800"><strong>Urgency:</strong> {analysisData.urgency}</p>
-                    {analysisData.recommended_specialty && (
-                      <p className="text-green-800"><strong>Recommended Specialty:</strong> {analysisData.recommended_specialty}</p>
-                    )}
-                    {analysisData.recommendations && (
-                      <p className="text-green-800"><strong>Recommendations:</strong> {analysisData.recommendations}</p>
-                    )}
-                    {analysisData.possibleConditions && analysisData.possibleConditions.length > 0 && (
-                      <p className="text-green-800"><strong>Possible Conditions:</strong> {analysisData.possibleConditions.join(', ')}</p>
-                    )}
-                  </div>
-
-                  {/* Raw Gemini Response */}
-                  {rawGeminiResponse && (
-                    <div className="border-t border-green-200 pt-4">
-                      <h4 className="text-md font-semibold text-green-900 mb-2">
-                        Raw Gemini API Response
-                      </h4>
-                      <div className="space-y-2">
-                        {(() => {
-                          try {
-                            const parsed = JSON.parse(rawGeminiResponse);
-                            return (
-                              <>
-                                <p className="text-green-800"><strong>Analysis:</strong> {parsed.analysis}</p>
-                                  <p className="text-green-800"><strong>Confidence:</strong> {parsed.confidence}</p>
-                                  <p className="text-green-800"><strong>Urgency:</strong> {parsed.urgency}</p>
-                                  <p className="text-green-800"><strong>Recommended Specialty:</strong> {parsed.recommendedSpecialty}</p>
-                                  <p className="text-green-800"><strong>Recommendations:</strong> {parsed.recommendations}</p>
-                                  <p className="text-green-800"><strong>Possible Conditions:</strong> {Array.isArray(parsed.possibleConditions) ? parsed.possibleConditions.join(', ') : parsed.possibleConditions}</p>
-                              </>
-                            );
-                          } catch (e) {
-                            return <p className="text-green-800">Unable to parse response</p>;
-                          }
-                        })()}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Doctor Recommendation */}
-              <div>
-                <h3 className="text-xl font-semibold mb-4">Recommended Healthcare Professional</h3>
-                <DoctorRecommendation
-                  doctor={doctor}
-                  clinic={clinic}
-                  confidence={analysisData.confidence || 0}
-                  analysisResult={analysisData.analysisResult}
-                  urgency={analysisData.urgency}
-                  onBookAppointment={handleBookAppointment}
+          <AnimatePresence mode="wait">
+            {currentStep === "input" && (
+              <motion.div key="input" {...fadeInUp}>
+                <SymptomInput
+                  onSubmit={(data) => {
+                    setCurrentStep("analyzing");
+                    submitSymptomMutation.mutate(data);
+                  }}
+                  isLoading={submitSymptomMutation.isPending}
                 />
-              </div>
 
-              {/* Additional Recommendations */}
-              {analysisData.recommendations && (
-                <div className="bg-blue-50 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-blue-900 mb-2">
-                    Additional Recommendations
-                  </h3>
-                  <p className="text-blue-800">{analysisData.recommendations}</p>
+                <div className="mt-8">
+                  <Alert className="glass-card border-none bg-amber-500/10 text-amber-900">
+                    <AlertTriangle className="h-5 w-5 text-amber-600" />
+                    <AlertDescription className="ml-2 font-medium">
+                      <strong>Medical Disclaimer:</strong> This tool provides general recommendations and is NOT a substitute for professional medical advice, diagnosis, or treatment. Always consult with a qualified healthcare provider for medical concerns.
+                    </AlertDescription>
+                  </Alert>
                 </div>
-              )}
+              </motion.div>
+            )}
 
-              {/* Actions */}
-              <div className="flex justify-center space-x-4">
-                <Button variant="outline" onClick={handleStartOver}>
-                  Analyze Different Symptoms
-                </Button>
-                <Button onClick={() => navigate("/clinics")}>
-                  Browse All Clinics
-                </Button>
-              </div>
-            </div>
-          )}
+            {currentStep === "analyzing" && (
+              <motion.div
+                key="analyzing"
+                {...fadeInUp}
+                className="text-center py-20 glass-card border-none"
+              >
+                <div className="relative inline-flex items-center justify-center w-24 h-24 mb-8">
+                  <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping"></div>
+                  <div className="relative bg-white rounded-full p-6 shadow-xl">
+                    <Brain className="h-10 w-10 text-primary animate-pulse" />
+                  </div>
+                </div>
+                <h2 className="text-2xl font-bold text-slate-900 mb-4">
+                  Analyzing Your Symptoms...
+                </h2>
+                <p className="text-slate-600 font-medium max-w-sm mx-auto leading-relaxed">
+                  Our AI is processing your information to find the most accurate healthcare recommendations.
+                </p>
+              </motion.div>
+            )}
 
-          {/* Error State */}
+            {currentStep === "results" && analysisData && doctor && clinic && (
+              <motion.div key="results" {...fadeInUp} className="space-y-8">
+                <Alert className="glass-card border-none bg-emerald-500/10 text-emerald-900">
+                  <CheckCircle className="h-5 w-5 text-emerald-600" />
+                  <AlertDescription className="ml-2 font-semibold">
+                    Analysis complete! Find our detailed assessment and recommendations below.
+                  </AlertDescription>
+                </Alert>
+
+                <div className="grid md:grid-cols-3 gap-6">
+                  <Card className="glass-card border-none">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-semibold uppercase tracking-wider text-slate-500 flex items-center">
+                        <Activity className="h-4 w-4 mr-2" />
+                        Urgency level
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className={`text-2xl font-black ${analysisData.urgency.toLowerCase().includes('high') || analysisData.urgency.toLowerCase().includes('emergency')
+                          ? 'text-red-500'
+                          : 'text-emerald-500'
+                        }`}>
+                        {analysisData.urgency}
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="glass-card border-none">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-semibold uppercase tracking-wider text-slate-500 flex items-center">
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        AI Confidence
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-2xl font-black text-primary">
+                        {analysisData.confidence}%
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="glass-card border-none">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-semibold uppercase tracking-wider text-slate-500 flex items-center">
+                        <Shield className="h-4 w-4 mr-2" />
+                        Specialty
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-2xl font-black text-slate-900">
+                        {analysisData.recommended_specialty || "General Medicine"}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-8">
+                  <Card className="glass-card border-none">
+                    <CardHeader>
+                      <CardTitle className="text-xl font-bold">Analysis Summary</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div>
+                        <h4 className="text-sm font-semibold text-slate-500 mb-2">CLINICAL ASSESSMENT</h4>
+                        <p className="text-slate-700 leading-relaxed font-medium">
+                          {analysisData.analysisResult}
+                        </p>
+                      </div>
+
+                      {analysisData.possibleConditions && analysisData.possibleConditions.length > 0 && (
+                        <div>
+                          <h4 className="text-sm font-semibold text-slate-500 mb-2">POTENTIAL CONDITIONS</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {analysisData.possibleConditions.map((cond, i) => (
+                              <span key={i} className="px-3 py-1 bg-white/50 border border-slate-200 rounded-full text-sm font-semibold text-slate-700">
+                                {cond}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  <Card className="glass-card border-none">
+                    <CardHeader>
+                      <CardTitle className="text-xl font-bold">Next Steps</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="bg-primary/5 rounded-2xl p-6 border border-primary/10">
+                        <h4 className="text-primary font-bold mb-3 flex items-center">
+                          <Clock className="h-4 w-4 mr-2" />
+                          RECOMMENDATIONS
+                        </h4>
+                        <p className="text-slate-700 leading-relaxed">
+                          {analysisData.recommendations}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="pt-4">
+                  <h3 className="text-2xl font-bold text-slate-900 mb-6 flex items-center">
+                    <Users className="h-6 w-6 mr-3 text-primary" />
+                    Recommended Doctor
+                  </h3>
+                  <DoctorRecommendation
+                    doctor={doctor}
+                    clinic={clinic}
+                    confidence={analysisData.confidence || 0}
+                    analysisResult={analysisData.analysisResult}
+                    urgency={analysisData.urgency}
+                    onBookAppointment={(id) => navigate(`/clinics?doctor=${id}&book=true`)}
+                  />
+                </div>
+
+                <div className="flex justify-center flex-col sm:flex-row gap-4 pt-8">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setCurrentStep("input");
+                      setSymptomData(null);
+                      setAnalysisData(null);
+                    }}
+                    className="h-12 px-8 rounded-xl font-bold"
+                  >
+                    Analyze Different Symptoms
+                  </Button>
+                  <Button
+                    onClick={() => navigate("/clinics")}
+                    className="h-12 px-8 rounded-xl font-bold shadow-lg shadow-primary/20"
+                  >
+                    View All Clinics
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {submitSymptomMutation.isError && (
-            <div className="text-center py-12">
-              <Alert variant="destructive" className="max-w-md mx-auto">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertDescription>
-                  {submitSymptomMutation.error?.message ||
-                    "Sorry, we encountered an error analyzing your symptoms. This could be due to API connectivity issues or invalid input. Please try again or contact support if the problem persists."}
+            <motion.div
+              {...fadeInUp}
+              className="text-center py-12"
+            >
+              <Alert variant="destructive" className="max-w-md mx-auto glass-card border-red-200 bg-red-50">
+                <AlertTriangle className="h-5 w-5" />
+                <AlertDescription className="font-medium">
+                  {submitSymptomMutation.error?.message || "An unexpected error occurred. Please try again."}
                 </AlertDescription>
               </Alert>
               <Button
                 onClick={() => setCurrentStep("input")}
-                className="mt-4"
+                className="mt-6 font-bold"
               >
                 Try Again
               </Button>
-            </div>
+            </motion.div>
           )}
         </div>
       </div>

@@ -1,1 +1,1 @@
-- [ ] Remove text-shadow from body in client/src/index.css
+- [x] Remove text-shadow from body in client/src/index.css
