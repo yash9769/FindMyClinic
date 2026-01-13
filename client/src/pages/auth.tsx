@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2, Mail, Chrome } from "lucide-react";
-import loginHero from "@/images/login-hero.png";
+import authSide from "@/images/auth-side.png";
 
 export default function Auth() {
   const { user, signIn, signUp, signInWithGoogle } = useAuth();
@@ -81,24 +81,12 @@ export default function Auth() {
   return (
     <div className="min-h-screen w-full flex overflow-hidden bg-white">
       {/* Left Side - Hero Section */}
-      <div className="hidden md:flex w-1/2 relative flex-col justify-center items-center p-12 text-white overflow-hidden bg-gradient-to-br from-[#0f4c75] to-[#0a0f12]">
-        {/* Background Effects */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-teal-500/20 rounded-full blur-[100px]" />
-        </div>
-
-        {/* Content */}
-        <div className="relative z-10 flex flex-col items-center text-center">
-          <img
-            src={loginHero}
-            alt="Healthcare Simplified"
-            className="w-full max-w-[320px] drop-shadow-2xl animate-float mb-12"
-          />
-          <h1 className="text-4xl md:text-5xl font-bold font-display tracking-tight leading-tight">
-            Healthcare <br />
-            Simplified
-          </h1>
-        </div>
+      <div className="hidden md:flex w-1/2 relative bg-slate-900 overflow-hidden">
+        <img
+          src={authSide}
+          alt="Healthcare Simplified"
+          className="w-full h-full object-cover"
+        />
       </div>
 
       {/* Right Side - Auth Form */}
