@@ -139,6 +139,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    setUser(null);
+    setSession(null);
+    setUserRole(null);
+    localStorage.removeItem('sb-tajllbcrnztxfwipvgrf-auth-token'); // Clear Supabase token just in case
+    window.location.href = '/';
   };
 
   const value = {

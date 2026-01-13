@@ -87,15 +87,20 @@ export default function Auth() {
         </div>
 
         {/* Content */}
-        <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-8">
+        <div className="relative z-10 flex flex-col h-full justify-center">
+          <div className="flex items-center gap-3 mb-12 absolute top-12 left-12">
             <div className="p-2.5 bg-white/10 backdrop-blur-md rounded-xl border border-white/10">
               <Chrome className="w-6 h-6 text-teal-400" />
             </div>
             <span className="text-xl font-bold font-display tracking-tight">FindMyClinic</span>
           </div>
 
-          <div className="mt-20">
+          <div className="mt-8">
+            <img
+              src="/src/images/login-hero.png"
+              alt="Healthcare Simplified"
+              className="w-full max-w-[400px] mx-auto mb-8 rounded-2xl shadow-2xl border border-white/10 glass-card animate-in fade-in zoom-in duration-700"
+            />
             <h1 className="text-5xl font-bold font-display leading-[1.1] mb-6 tracking-tight">
               Healthcare <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-400">
